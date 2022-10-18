@@ -23,34 +23,15 @@ public class CustomAuthArgs {
 
 
     // Android package redirect uri
-    private final String browserRedirectUri;
-    private String redirectUri;
     private TorusNetwork network;
     private boolean enableOneKey;
     private String networkUrl;
 
 
-    public CustomAuthArgs(String browserRedirectUri, TorusNetwork network, String _redirectUri) {
-        this.redirectUri = _redirectUri;
+    public CustomAuthArgs(TorusNetwork network) {
         this.network = network;
-        this.browserRedirectUri = browserRedirectUri;
     }
 
-    public CustomAuthArgs(String browserRedirectUri, TorusNetwork network) {
-        this(browserRedirectUri, network, "");
-    }
-
-    public CustomAuthArgs(String browserRedirectUri) {
-        this(browserRedirectUri, TorusNetwork.MAINNET, "");
-    }
-
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-
-    public void setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
-    }
 
     public TorusNetwork getNetwork() {
         return network;
@@ -58,10 +39,6 @@ public class CustomAuthArgs {
 
     public void setNetwork(TorusNetwork network) {
         this.network = network;
-    }
-
-    public String getBrowserRedirectUri() {
-        return browserRedirectUri;
     }
 
     public boolean isEnableOneKey() {
