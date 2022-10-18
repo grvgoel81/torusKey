@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    implementation 'org.web3j:core:5.0.0'
+    implementation 'org.torusresearch:torus-utils-java:2.0.1'
+    implementation 'org.torusresearch:fetch-node-details-java:3.0.0'
+    implementation 'com.google.code.gson:gson:2.9.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+test {
+    useJUnitPlatform()
+}
