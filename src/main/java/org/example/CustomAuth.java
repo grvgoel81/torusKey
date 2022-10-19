@@ -6,8 +6,11 @@ import org.torusresearch.torusutils.TorusUtils;
 import org.torusresearch.torusutils.helpers.Utils;
 import org.torusresearch.torusutils.types.RetrieveSharesResponse;
 import org.torusresearch.torusutils.types.TorusCtorOptions;
+import org.torusresearch.torusutils.types.TorusPublicKey;
+import org.torusresearch.torusutils.types.VerifierArgs;
 import types.CustomAuthArgs;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -36,10 +39,20 @@ public class CustomAuth {
         this.torusUtils = new TorusUtils(opts);
     }
 
-    public CompletableFuture<RetrieveSharesResponse> getTorusKey(String verifier, String verifierId, HashMap<String, Object> verifierParams,
+    public CompletableFuture<BigInteger> getTorusKey(String verifier, String verifierId, HashMap<String, Object> verifierParams,
                                                                  String idToken) throws ExecutionException, InterruptedException {
         NodeDetails nodeDetails = this.nodeDetailManager.getNodeDetails(verifier, verifierId).get();
-        return this.torusUtils.retrieveShares(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusIndexes(),
-                verifier, verifierParams, idToken);
+        // this function creates a wallet if not doesn't exists
+        TorusPublicKey torusPublicKey = torusUtils.getPublicAddress(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusNodePub(), new VerifierArgs(verifier, verifierId)).get();
+        RetrieveSharesResponse shareResponse = this.torusUtils.retrieveShares(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusIndexes(),verifier, verifierParams, idToken).get();
+        CompletableFuture<BigInteger> response = new CompletableFuture<BigInteger>();
+        if (shareResponse == null) {
+            response.completeExceptionally(new Exception("Invalid Share response"));
+        } else if (!shareResponse.getEthAddress().equalsIgnoreCase(torusPublicKey.getAddress())) {
+            response.completeExceptionally(new Exception("Share response doesn't match public key response"));
+        } else {
+            response.complete(shareResponse.getPrivKey());
+        }
+        return response;
     }
 }
