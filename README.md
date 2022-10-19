@@ -2,10 +2,11 @@
 
 ## Introduction
 
-This package is used for generating for generating user private key from Torus nodes and thus determine the ethereum address.
+This package is used to reconstruct private key using idToken when mfa is not enabled. 
 
-## Features
-- All API's return `CompletableFutures`
+## Steps to reconstruct Torus Key
+- Pass verifier, verifierId, verifierParamsHashMap, idToken parameters to getTorusKey() function.
+- getTorusKey() function returns Torus key and throws error when mfa is not enabled.
 
 ## Getting started
 ```groovy
