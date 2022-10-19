@@ -4,14 +4,10 @@ import org.torusresearch.fetchnodedetails.FetchNodeDetails;
 import org.torusresearch.fetchnodedetails.types.NodeDetails;
 import org.torusresearch.torusutils.TorusUtils;
 import org.torusresearch.torusutils.helpers.Utils;
-import org.torusresearch.torusutils.types.RetrieveSharesResponse;
-import org.torusresearch.torusutils.types.TorusCtorOptions;
-import org.torusresearch.torusutils.types.TorusPublicKey;
-import org.torusresearch.torusutils.types.VerifierArgs;
+import org.torusresearch.torusutils.types.*;
 import types.CustomAuthArgs;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -43,9 +39,20 @@ public class CustomAuth {
                                                                  String idToken) throws ExecutionException, InterruptedException {
         NodeDetails nodeDetails = this.nodeDetailManager.getNodeDetails(verifier, verifierId).get();
         // this function creates a wallet if not doesn't exists
-        TorusPublicKey torusPublicKey = torusUtils.getPublicAddress(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusNodePub(), new VerifierArgs(verifier, verifierId)).get();
-        RetrieveSharesResponse shareResponse = this.torusUtils.retrieveShares(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusIndexes(),verifier, verifierParams, idToken).get();
+        TorusPublicKey torusPublicKey = torusUtils.getPublicAddress(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusNodePub(), new VerifierArgs(verifier, verifierId), true).get();
+
+        GetOrSetNonceResult.PubNonce nonce = torusPublicKey.getPubNonce();
+
+        TypeOfUser userType = torusPublicKey.getTypeOfUser();
+
         CompletableFuture<BigInteger> response = new CompletableFuture<BigInteger>();
+
+        if (nonce == null || userType.equals("v1")) {
+            response.completeExceptionally(new Exception("User has already enabled mfa, use mfa flow"));
+            return response;
+        }
+
+        RetrieveSharesResponse shareResponse = this.torusUtils.retrieveShares(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusIndexes(),verifier, verifierParams, idToken).get();
         if (shareResponse == null) {
             response.completeExceptionally(new Exception("Invalid Share response"));
         } else if (!shareResponse.getEthAddress().equalsIgnoreCase(torusPublicKey.getAddress())) {
