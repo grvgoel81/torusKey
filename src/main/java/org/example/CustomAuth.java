@@ -40,10 +40,6 @@ public class CustomAuth {
         NodeDetails nodeDetails = this.nodeDetailManager.getNodeDetails(verifier, verifierId).get();
         // this function creates a wallet if not doesn't exists
         TorusPublicKey torusPublicKey = torusUtils.getPublicAddress(nodeDetails.getTorusNodeEndpoints(), nodeDetails.getTorusNodePub(), new VerifierArgs(verifier, verifierId), true).get();
-        System.out.println(torusPublicKey.getTypeOfUser());
-
-        System.out.println(torusPublicKey.getPubNonce());
-        System.out.println(torusPublicKey.getAddress());
 
         GetOrSetNonceResult.PubNonce nonce = torusPublicKey.getPubNonce();
 
